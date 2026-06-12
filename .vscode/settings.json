@@ -1,0 +1,68 @@
+{
+    "snyk.advanced.organization": "234cda95-9b78-4bee-a49b-9a336b833856",
+    "files.exclude": {
+        "**/.next": true,
+        "**/.vercel": true,
+        "**/node_modules": true,
+        "**/.venv": true
+    },
+    "files.watcherExclude": {
+        "**/.next/**": true,
+        "**/.vercel/**": true,
+        "**/node_modules/**": true,
+        "**/.venv/**": true
+    },
+    "search.exclude": {
+        "**/.next": true,
+        "**/.vercel": true,
+        "**/node_modules": true,
+        "**/.venv": true
+    },
+    "problems.exclude": {
+        "**/node_modules/**": true,
+        "**/.next/**": true,
+        "**/.vercel/**": true,
+        "**/.venv/**": true,
+        "**/package.json": true,
+        "**/package-lock.json": true,
+        "**/dist/**": true,
+        "**/build/**": true
+    },
+    "typescript.tsserver.watchOptions": {
+        "excludeDirectories": [
+            "**/node_modules",
+            "**/.next",
+            "**/.vercel",
+            "**/.venv"
+        ]
+    },
+    "js/ts.tsserver.experimental.enableProjectDiagnostics": false,
+    "sonarlint.automaticAnalysis": false,
+    "snyk.scanningMode": "manual",
+    "snyk.features.openSourceSecurity": false,
+    "snyk.features.codeSecurity": false,
+    "snyk.features.infrastructureAsCode": false,
+    "snyk.features.secrets": false,
+    "snyk.advanced.autoSelectOrganization": true,
+    "sonarlint.analysisExcludesStandalone": [
+        "**/node_modules/**",
+        "**/.next/**",
+        "**/.vercel/**",
+        "**/.venv/**",
+        "**/package.json",
+        "**/package-lock.json"
+    ],
+    "python.analysis.exclude": [
+        "**/.venv/**",
+        "**/node_modules/**",
+        "**/.next/**",
+        "**/.vercel/**"
+    ],
+    "python-envs.pythonProjects": [
+        {
+            "path": ".",
+            "envManager": "ms-python.python:venv",
+            "packageManager": "ms-python.python:pip"
+        }
+    ]
+}

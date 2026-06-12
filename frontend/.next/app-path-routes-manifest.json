@@ -1,0 +1,15 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/billing/page": "/billing",
+  "/checkout/page": "/checkout",
+  "/coupons/advance/page": "/coupons/advance",
+  "/coupons/page": "/coupons",
+  "/invite/page": "/invite",
+  "/page": "/",
+  "/products/page": "/products",
+  "/profile/page": "/profile",
+  "/support/page": "/support",
+  "/tenants/page": "/tenants",
+  "/users/page": "/users"
+}

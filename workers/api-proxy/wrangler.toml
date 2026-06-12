@@ -1,0 +1,12 @@
+name = "core-proxy"
+main = "src/index.ts"
+compatibility_date = "2026-06-05"
+
+routes = [
+  { pattern = "api.tuskus.com/*", zone_name = "tuskus.com" },
+]
+
+[vars]
+COREADMIN_BACKEND_ORIGIN = "https://coreadmin-backend-908245778962.asia-south1.run.app"
+CORE_BACKEND_ORIGIN = "https://core-api-bgqab4t4dq-el.a.run.app"
+ALLOWED_ORIGINS = "https://core.tuskus.com,https://coreadmin.tuskus.com,http://localhost:3000,http://127.0.0.1:3000"

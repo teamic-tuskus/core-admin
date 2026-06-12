@@ -1,0 +1,34 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "CoreAdmin Slice Lint",
+			"type": "shell",
+			"command": "npx",
+			"args": [
+				"eslint",
+				"app/products/page.tsx",
+				"app/coupons/page.tsx",
+				"lib/api-client.ts"
+			],
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "CoreAdmin Dev Server",
+			"type": "shell",
+			"command": "npm run dev",
+			"isBackground": true,
+			"group": "build"
+		},
+		{
+			"label": "CoreAdmin Local Dev",
+			"type": "shell",
+			"command": "npm run dev",
+			"isBackground": true,
+			"group": "build"
+		}
+	]
+}
