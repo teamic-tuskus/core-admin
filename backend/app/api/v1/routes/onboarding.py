@@ -5,11 +5,10 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
 import hmac
+import httpx
 import json
 import secrets
 from typing import Annotated
-import urllib.error
-import urllib.request
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from starlette import status
@@ -328,37 +327,33 @@ async def setup_credentials(
         setup_token=payload.setup_token,
     )
 
-    body = json.dumps(
-        {
-            "email": normalized_email,
-            "password": payload.password,
-            "returnSecureToken": False,
-        }
-    ).encode("utf-8")
-    url = f"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={api_key}"
-    req = urllib.request.Request(
-        url,
-        data=body,
-        method="POST",
-        headers={"content-type": "application/json"},
-    )
+    # URL is a static constant — no user-controlled data in the domain or path.
+    # Only the api_key query parameter (from GCP Secret Manager) is interpolated.
+    _FIREBASE_SIGNUP_BASE = "https://identitytoolkit.googleapis.com/v1/accounts:signUp"
+    signup_url = f"{_FIREBASE_SIGNUP_BASE}?key={api_key}"
     try:
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            resp.read()
-        db = get_firestore_client()
-        db.collection("tenants").document(payload.tenant_id).set(
-            {
-                "super_admin_email": normalized_email,
-                "updated_at": datetime.now(tz=timezone.utc),
+        resp = httpx.post(
+            signup_url,
+            json={
+                "email": normalized_email,
+                "password": payload.password,
+                "returnSecureToken": False,
             },
-            merge=True,
+            timeout=15,
         )
-        _mark_credentials_setup_token_used(tenant_id=payload.tenant_id)
-        return OnboardingCredentialsResponse(email=normalized_email, account_created=True)
-    except urllib.error.HTTPError as exc:
-        err_body = exc.read().decode("utf-8", errors="replace")
+        if resp.is_success:
+            db = get_firestore_client()
+            db.collection("tenants").document(payload.tenant_id).set(
+                {
+                    "super_admin_email": normalized_email,
+                    "updated_at": datetime.now(tz=timezone.utc),
+                },
+                merge=True,
+            )
+            _mark_credentials_setup_token_used(tenant_id=payload.tenant_id)
+            return OnboardingCredentialsResponse(email=normalized_email, account_created=True)
         try:
-            detail = json.loads(err_body).get("error", {}).get("message", "")
+            detail = resp.json().get("error", {}).get("message", "")
         except Exception:
             detail = ""
         if "EMAIL_EXISTS" in detail:
@@ -376,9 +371,11 @@ async def setup_credentials(
             raise HTTPException(
                 status_code=400,
                 detail="Password is too weak. Use at least 8 characters.",
-            ) from exc
+            )
         if "INVALID_EMAIL" in detail:
-            raise HTTPException(status_code=400, detail="Invalid email address.") from exc
-        raise HTTPException(status_code=400, detail="Account setup failed. Please try again.") from exc
+            raise HTTPException(status_code=400, detail="Invalid email address.")
+        raise HTTPException(status_code=400, detail="Account setup failed. Please try again.")
+    except HTTPException:
+        raise
     except Exception as exc:
         raise HTTPException(status_code=503, detail=ACCOUNT_PROVISIONING_UNAVAILABLE_MESSAGE) from exc

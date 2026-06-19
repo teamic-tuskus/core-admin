@@ -224,17 +224,17 @@ def test_credentials_accepts_valid_setup_token_and_marks_used(
     assert complete.status_code == 200
     setup_token = complete.json()["credentials_setup_token"]
 
-    class _FakeHttpResponse:
-        def read(self) -> bytes:
-            return b"{}"
+    class _FakeHttpxResponse:
+        status_code = 200
 
-        def __enter__(self):
-            return self
+        @property
+        def is_success(self) -> bool:
+            return True
 
-        def __exit__(self, exc_type, exc, tb) -> bool:
-            return False
+        def json(self) -> dict:
+            return {}
 
-    monkeypatch.setattr(onboarding_routes.urllib.request, "urlopen", lambda req, timeout=15: _FakeHttpResponse())
+    monkeypatch.setattr(onboarding_routes.httpx, "post", lambda url, **kwargs: _FakeHttpxResponse())
 
     response = client.post(
         "/api/v1/onboarding/credentials",
