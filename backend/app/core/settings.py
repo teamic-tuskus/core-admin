@@ -110,6 +110,7 @@ class Settings(BaseSettings):
     super_admin_invitation_expiry_days: int = 7
     portal_invitation_resend_cooldown_seconds: int = 90
     portal_invitation_resend_max_per_hour: int = 6
+    max_portal_operators: int = 50
 
     # Secret names only. Values are always loaded from GCP Secret Manager.
     secret_ids: tuple[str, ...] = (

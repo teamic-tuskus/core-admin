@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.api.v1.router import router as api_v1_router
 from app.core.secret_manager import get_secret_manager, init_secret_manager
 from app.core.settings import get_settings
+from app.exceptions.quota import QuotaExceededError
 
 logging.basicConfig(
     level=logging.INFO,
@@ -86,6 +88,20 @@ async def startup_event() -> None:
     ):
         get_secret_manager().warmup((settings.post_payment_tasks_token_secret_id,))
     logger.info("CoreAdmin startup complete with GCP Secret Manager validation")
+
+
+@app.exception_handler(QuotaExceededError)
+async def quota_exceeded_exception_handler(request: Request, exc: QuotaExceededError) -> JSONResponse:
+    """Handle quota exceeded errors with 402 Payment Required."""
+    return JSONResponse(
+        status_code=402,
+        content={
+            "success": False,
+            "error": exc.quota_type,
+            "detail": exc.message,
+            "upgrade_url": "https://coreadmin.tuskus.com/billing",
+        },
+    )
 
 
 app.include_router(api_v1_router, prefix="/api/v1")

@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 
 from app.api.v1.routes.admin import router as admin_router
 from app.core.auth import require_admin
+from app.core.settings import get_settings
 from app.services.admin_container import get_admin_service
 
 
@@ -59,6 +60,9 @@ class _FakeAdminService:
         invitation = {**self._invitation, "invitee_email": invitee_email, "role": role, "access_scope": access_scope or "both"}
         return {"invitation": invitation, "delivery_status": "sent"}
 
+    def get_portal_access_state(self) -> dict:
+        return {"operators": [], "invitations": []}
+
 
 def _build_client(service: _FakeAdminService) -> TestClient:
     app = FastAPI()
@@ -70,6 +74,9 @@ def _build_client(service: _FakeAdminService) -> TestClient:
         {"uid": "uid_admin", "email": "admin@example.com", "claims": {"role": "admin", "roles": ["admin"]}},
     )()
     app.dependency_overrides[get_admin_service] = lambda: service
+    app.dependency_overrides[get_settings] = lambda: type(
+        "Settings", (), {"max_portal_operators": 50}
+    )()
 
     return TestClient(app)
 

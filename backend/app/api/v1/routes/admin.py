@@ -31,6 +31,8 @@ from app.schemas.tenant import (
 )
 from app.services.admin_container import get_admin_service
 from app.services.admin_service import AdminService
+from app.core.settings import get_settings
+from app.exceptions.quota import UserSeatsExceededError
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -256,13 +258,22 @@ async def get_portal_access_state(
 
 @router.post(
     "/access/invitations",
-    responses={400: {"description": "Portal access invitation failed"}},
+    responses={400: {"description": "Portal access invitation failed"}, 402: {"description": "Operator seat limit reached"}},
 )
 async def invite_portal_access(
     payload: PortalAccessInviteRequest,
     principal: Annotated[AuthenticatedPrincipal, Depends(require_admin)],
     admin_service: Annotated[AdminService, Depends(get_admin_service)],
+    settings: Annotated[object, Depends(get_settings)],
 ) -> PortalAccessInviteResponse:
+    current_operators = admin_service.get_portal_access_state()["operators"]
+    current_count = len(current_operators)
+    max_operators = settings.max_portal_operators
+    if current_count >= max_operators:
+        raise UserSeatsExceededError(
+            f"Operator seat limit reached. Currently using {current_count} of {max_operators} seats. "
+            "Contact support to increase the limit."
+        )
     try:
         invite_payload = payload.model_dump(exclude_none=True)
         item = admin_service.create_portal_access_invitation(principal=principal, **invite_payload)
