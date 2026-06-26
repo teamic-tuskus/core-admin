@@ -34,6 +34,7 @@ class PublicSalesProductResponse(BaseModel):
     features: str | None = None
     modules: list[str]
     base_max_users: int
+    base_storage_gb: float = 5.0
     pricing: list[PricingOption]
     billing_cycles: BillingCyclesResponse | None = None
     home_view: HomeViewContent | None = None

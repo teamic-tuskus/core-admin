@@ -139,6 +139,7 @@ async def list_sales_products(
             features=item.get("features"),
             modules=list(item.get("modules") or []),
             base_max_users=int(item["base_max_users"]),
+            base_storage_gb=float(item.get("base_storage_gb") or 5.0),
             pricing=list(item.get("pricing") or []),
             billing_cycles=item.get("billing_cycles"),
             home_view=item.get("home_view"),

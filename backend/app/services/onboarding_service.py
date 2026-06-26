@@ -369,6 +369,7 @@ class OnboardingService:
                     "product_name": (subscription.get("product_snapshot") or {}).get("name") or selected_plan or "Core",
                     "entitlement_modules": list(subscription.get("modules") or []),
                     "entitlement_max_users": int(subscription.get("max_users") or 1),
+                    "entitlement_storage_gb": float(subscription.get("storage_gb") or 5.0),
                     "entitlement_tenure_months": int(subscription.get("tenure_months") or 1),
                     "amount_paise": int(subscription.get("amount_paise") or 0),
                     "currency": subscription.get("currency") or "INR",

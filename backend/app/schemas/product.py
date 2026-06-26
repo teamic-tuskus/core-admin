@@ -114,6 +114,7 @@ class ProductCreateRequest(BaseModel):
     features: str | None = Field(default=None, max_length=8000)
     modules: list[str] = Field(min_length=1)
     base_max_users: int = Field(ge=1, le=100000)
+    base_storage_gb: float = Field(default=5.0, ge=1.0, le=10000.0)
     pricing: list[PricingOption] | None = Field(default=None, min_length=1)
     billing_cycles: BillingCyclesInput | None = None
     home_view: HomeViewContent | None = None
@@ -132,6 +133,7 @@ class ProductUpdateRequest(BaseModel):
     features: str | None = Field(default=None, max_length=8000)
     modules: list[str] | None = Field(default=None, min_length=1)
     base_max_users: int | None = Field(default=None, ge=1, le=100000)
+    base_storage_gb: float | None = Field(default=None, ge=1.0, le=10000.0)
     pricing: list[PricingOption] | None = Field(default=None, min_length=1)
     billing_cycles: BillingCyclesInput | None = None
     home_view: HomeViewContent | None = None
@@ -151,6 +153,7 @@ class ProductResponse(BaseModel):
     features: str | None = None
     modules: list[str]
     base_max_users: int
+    base_storage_gb: float = 5.0
     pricing: list[PricingOption]
     billing_cycles: BillingCyclesResponse | None = None
     home_view: HomeViewContent | None = None

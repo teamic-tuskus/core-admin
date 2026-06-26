@@ -55,6 +55,7 @@ class _FakeCheckoutService:
             "applied_coupon_code": payload.get("coupon_code"),
             "entitlement_modules": ["execution", "store"],
             "entitlement_max_users": 50,
+            "entitlement_storage_gb": 50.0,
             "entitlement_tenure_months": int(payload["tenure_months"]),
         }
 

@@ -36,6 +36,7 @@ class CheckoutIntentResponse(BaseModel):
     applied_coupon_code: str | None
     entitlement_modules: list[str]
     entitlement_max_users: int
+    entitlement_storage_gb: float
     entitlement_tenure_months: int
 
     @model_validator(mode="after")

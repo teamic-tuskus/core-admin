@@ -276,9 +276,10 @@ class CheckoutService:
         product: dict,
         requested_users: int | None,
         coupon: dict | None,
-    ) -> tuple[list[str], int, int | None]:
+    ) -> tuple[list[str], int, float, int | None]:
         modules = list(product["modules"])
         max_users = int(product["base_max_users"])
+        storage_gb = float(product.get("base_storage_gb") or 5.0)
         tenure_override: int | None = None
 
         if requested_users is not None:
@@ -292,7 +293,7 @@ class CheckoutService:
             if coupon.get("override_tenure_months") is not None:
                 tenure_override = int(coupon["override_tenure_months"])
 
-        return sorted(set(modules)), max_users, tenure_override
+        return sorted(set(modules)), max_users, storage_gb, tenure_override
 
     @staticmethod
     def _build_product_snapshot(product: dict) -> dict:
@@ -317,6 +318,7 @@ class CheckoutService:
             "features": product.get("features"),
             "modules": list(product.get("modules") or []),
             "base_max_users": int(product["base_max_users"]),
+            "base_storage_gb": float(product.get("base_storage_gb") or 5.0),
             "pricing": [dict(item) for item in product.get("pricing") or []],
             "billing_cycles": billing_cycles,
             "home_view": product.get("home_view"),
@@ -370,7 +372,7 @@ class CheckoutService:
         if amount_paise <= 0:
             raise ValueError("Final amount must be greater than zero")
 
-        entitlement_modules, entitlement_max_users, override_tenure = self._resolve_entitlement(
+        entitlement_modules, entitlement_max_users, entitlement_storage_gb, override_tenure = self._resolve_entitlement(
             product=product,
             requested_users=payload.get("requested_users"),
             coupon=coupon,
@@ -384,6 +386,7 @@ class CheckoutService:
                 "product_snapshot": self._build_product_snapshot(product),
                 "modules": entitlement_modules,
                 "max_users": entitlement_max_users,
+                "storage_gb": entitlement_storage_gb,
                 "tenure_months": final_tenure,
                 "currency": self.currency,
                 "amount_paise": amount_paise,
@@ -453,6 +456,7 @@ class CheckoutService:
             "applied_coupon_code": coupon["code"] if coupon else None,
             "entitlement_modules": entitlement_modules,
             "entitlement_max_users": entitlement_max_users,
+            "entitlement_storage_gb": entitlement_storage_gb,
             "entitlement_tenure_months": final_tenure,
         }
         self.idempotency_repo.set(operation_key, response)
