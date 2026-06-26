@@ -11,6 +11,7 @@ from app.api.v1.routes.onboarding import router as onboarding_router
 from app.api.v1.routes.otp import router as otp_router
 from app.api.v1.routes.products import router as products_router
 from app.api.v1.routes.sales import router as sales_router
+from app.api.v1.routes.webhooks import router as webhooks_router
 
 router = APIRouter()
 router.include_router(health_router)
@@ -21,4 +22,5 @@ router.include_router(sales_router)
 router.include_router(products_router)
 router.include_router(coupons_router)
 router.include_router(checkout_router)
+router.include_router(webhooks_router)
 router.include_router(admin_router)
